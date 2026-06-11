@@ -1,0 +1,12 @@
+import Card from './Card';
+
+function StatCard({ label, value }) {
+  return (
+    <Card>
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+    </Card>
+  );
+}
+
+export default StatCard;
