@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
-import { usePendingApprovals, useBulkApprove } from '../hooks/useEligibilityQueries';
+import toast from 'react-hot-toast';
+import { usePendingApprovals, useBulkApprove, useApproveEligibility, useRejectEligibility } from '../hooks/useEligibilityQueries';
 import ApprovalQueueTable from '../components/ApprovalQueueTable';
 import BulkApprovalToolbar from '../components/BulkApprovalToolbar';
+import ApproveEligibilityModal from '../components/ApproveEligibilityModal';
+import RejectEligibilityModal from '../components/RejectEligibilityModal';
 
 export default function ApprovalsPage() {
   const { data: approvals = [], isLoading } = usePendingApprovals();
   const [selected, setSelected] = useState([]);
   const bulk = useBulkApprove();
+  const approveMutation = useApproveEligibility();
+  const rejectMutation = useRejectEligibility();
+
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [currentRegistration, setCurrentRegistration] = useState(null);
 
   const kpis = useMemo(
     () => ({
@@ -19,6 +28,30 @@ export default function ApprovalsPage() {
   const toggleSelect = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const selectAll = () => setSelected((s) => (s.length === approvals.length ? [] : approvals.map((a) => a.registrationId)));
   const clearSelection = () => setSelected([]);
+
+  const openApprove = (registration) => {
+    setCurrentRegistration(registration);
+    setApproveOpen(true);
+  };
+
+  const openReject = (registration) => {
+    setCurrentRegistration(registration);
+    setRejectOpen(true);
+  };
+
+  const onConfirmApprove = (payload) => {
+    if (!currentRegistration) return;
+    approveMutation.mutate({ registrationId: currentRegistration.registrationId, payload: { approver: payload.approver, comments: payload.comments } });
+    setApproveOpen(false);
+    toast.success('Approval submitted');
+  };
+
+  const onConfirmReject = (payload) => {
+    if (!currentRegistration) return;
+    rejectMutation.mutate({ registrationId: currentRegistration.registrationId, payload: { approver: payload.approver || 'current.user', reason: payload.reason, comments: payload.comments } });
+    setRejectOpen(false);
+    toast.success('Rejection submitted');
+  };
 
   return (
     <div className="space-y-5">
@@ -42,8 +75,13 @@ export default function ApprovalsPage() {
           selectedIds={selected}
           onToggleSelect={toggleSelect}
           onSelectAll={selectAll}
+          onOpenApprove={openApprove}
+          onOpenReject={openReject}
         />
       </section>
+
+      <ApproveEligibilityModal open={approveOpen} onClose={() => setApproveOpen(false)} registration={currentRegistration} onConfirm={onConfirmApprove} />
+      <RejectEligibilityModal open={rejectOpen} onClose={() => setRejectOpen(false)} registration={currentRegistration} onConfirm={onConfirmReject} />
     </div>
   );
 }
