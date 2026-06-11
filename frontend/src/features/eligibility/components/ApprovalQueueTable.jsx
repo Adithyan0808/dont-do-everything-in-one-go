@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useApproveEligibility, useRejectEligibility } from '../hooks/useEligibilityQueries';
 
-export default function ApprovalQueueTable({ approvals = [], loading }) {
+export default function ApprovalQueueTable({ approvals = [], loading, selectedIds = [], onToggleSelect, onSelectAll }) {
   const approve = useApproveEligibility();
   const reject = useRejectEligibility();
 
@@ -20,11 +20,14 @@ export default function ApprovalQueueTable({ approvals = [], loading }) {
 
   if (!approvals.length) return <div className="rounded-card p-4">No pending approvals.</div>;
 
+  const allSelected = approvals.length > 0 && selectedIds.length === approvals.length;
+
   return (
     <div className="overflow-auto rounded-card border border-slate-200 bg-white p-4 shadow-sm">
       <table className="w-full table-auto">
         <thead>
           <tr className="text-left text-sm text-slate-600">
+            <th className="p-2"><input type="checkbox" checked={allSelected} onChange={() => onSelectAll?.()} /></th>
             <th className="p-2">Candidate</th>
             <th className="p-2">Employee ID</th>
             <th className="p-2">Certification</th>
@@ -38,6 +41,7 @@ export default function ApprovalQueueTable({ approvals = [], loading }) {
         <tbody>
           {approvals.map((a) => (
             <tr key={a.registrationId} className="border-t">
+              <td className="p-2"><input type="checkbox" checked={selectedIds.includes(a.registrationId)} onChange={() => onToggleSelect?.(a.registrationId)} /></td>
               <td className="p-2 text-sm">{a.candidate}</td>
               <td className="p-2 text-sm">{a.employeeId}</td>
               <td className="p-2 text-sm">{a.certification}</td>
