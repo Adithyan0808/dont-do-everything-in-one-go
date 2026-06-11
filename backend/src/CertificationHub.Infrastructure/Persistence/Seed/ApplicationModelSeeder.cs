@@ -10,7 +10,7 @@ internal static class ApplicationModelSeeder
 {
     private static readonly DateTime SeedDate = new(2026, 6, 9, 0, 0, 0, DateTimeKind.Utc);
     private const string SeedUser = "seed";
-    private const string SeedPasswordHash = "$2a$11$ZONQLjnpJocHuJeJaJGcEuhwh1kLPJKb1ZC9klf6Vw.KAX1MTW2Gq";
+    private const string SeedPasswordHash = "$2b$11$4H/sEji3lNmDqFT9lPVWxOfpXHfloS1S0JBjecvGkGhgPZ/vvGRw";
     private static readonly Guid AdminId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     private static readonly Guid DriveId = Guid.Parse("20000000-0000-0000-0000-000000000001");
 
